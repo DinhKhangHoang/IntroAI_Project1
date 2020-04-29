@@ -384,19 +384,18 @@ def cornersHeuristic(state, problem):
     restCorners = state[1][:]
 
     while len(restCorners) > 0:
-        nextCorner = nextPoint(currentPosition, restCorners)
-        sum += util.manhattanDistance(currentPosition, nextCorner)
-        currentPosition = nextCorner
+        next = getNextCorner(currentPosition, restCorners)
+        sum += util.manhattanDistance(currentPosition, next)
+        currentPosition = next
         temp = list(restCorners)
-        temp.remove(nextCorner)
+        temp.remove(next)
         restCorners = tuple(temp)
     return sum
 
 
-def nextPoint(position, corners):
+def getNextCorner(position, corners):
     if len(corners) == 0:
         return None
-
     nextCorner = corners[0]
     minCost = util.manhattanDistance(position, nextCorner)
     for corner in corners[1:]:
@@ -404,7 +403,6 @@ def nextPoint(position, corners):
         if minCost > cost:
             minCost = cost
             nextCorner = corner
-
     return nextCorner
 
 
@@ -504,7 +502,7 @@ def foodHeuristic(state, problem):
     if len(foodList) ==0:
         return 0
 
-    furthestFood= NextFood(position, foodList)
+    furthestFood= getFurthestFood(position, foodList)
     somefood = foodList[0]
     maxCost = util.manhattanDistance(position, somefood) + util.manhattanDistance(somefood, furthestFood)
     for food in foodList[1:]:
@@ -514,7 +512,7 @@ def foodHeuristic(state, problem):
 
     return maxCost
 
-def NextFood(position, foodList):
+def getFurthestFood(position, foodList):
     nextFood = foodList[0]
     maxCost = util.manhattanDistance(position, nextFood)
     for food in foodList[1:]:
