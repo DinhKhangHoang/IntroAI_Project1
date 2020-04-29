@@ -19,6 +19,45 @@ Pacman agents (in searchAgents.py).
 
 import util
 
+class Node:
+    def __init__(self, state, parent=None, action = None, cost=0):
+        self.state = state
+        self.parent = parent
+        self.action = action
+        self.path_cost = cost
+        self.depth = 0
+        if parent:
+            self.depth = parent.depth + 1
+    
+    def __repr__(self):
+        return "<Node {}>".format(self.state)
+
+    def __lt__(self, node):
+        return self.state < node.state
+
+    def expand(self, problem):
+        return [self.child_node(problem, action) for action in problem.getSuccessors(self.state)]
+
+    def child_node(self, problem, action):
+        next = action[0]
+        return Node(next, self, action[1], self.path_cost+action[2])
+
+    def solution(self):
+        return [node.action for node in self.path()[1:]]
+
+    def path(self):
+        node, path_back = self, []
+        while node:
+            path_back.append(node)
+            node = node.parent
+        return list(reversed(path_back))
+
+    def __eq__(self, other):
+        return isinstance(other, Node) and (self.state == other.state)
+
+    def __hash__(self):
+        return hash(self.state)
+
 class SearchProblem:
     """
     This class outlines the structure of a search problem, but doesn't implement
@@ -87,50 +126,58 @@ def depthFirstSearch(problem):
     print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
+    startNode = Node(problem.getStartState())
     fringe = util.Stack()
-    startNode = (problem.getStartState(), [])
     fringe.push(startNode)
     closed = set()
     while not fringe.isEmpty():
         node = fringe.pop()
-        closed.add(node[0])
-        if problem.isGoalState(node[0]):
-            return node[1]
-        # print(node[0])
-        for suc in problem.getSuccessors(node[0]):
-            if suc[0] not in closed:
-                fringe.push((suc[0], node[1] + [suc[1]]))
-    # util.raiseNotDefined()
+        if problem.isGoalState(node.state):
+            return node.solution()
+        closed.add(node.state)
+        for child in node.expand(problem):
+            if child.state not in closed:
+                fringe.push(child)
     return None
+
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
+    startNode = Node(problem.getStartState())
     fringe = util.Queue()
-    startNode = (problem.getStartState(), [])
     fringe.push(startNode)
     closed = set()
     while not fringe.isEmpty():
         node = fringe.pop()
-        closed.add(node[0])
-        if problem.isGoalState(node[0]):
-            return node[1]
-        # print(node[0])
-        for suc in problem.getSuccessors(node[0]):
-            if suc[0] not in closed:
-                fringe.push((suc[0], node[1] + [suc[1]]))
+        if problem.isGoalState(node.state):
+            return node.solution()
+        closed.add(node.state)
+        for child in node.expand(problem):
+            if (child.state not in closed) and (child not in fringe.list):
+                fringe.push(child)
     return None
+
     # util.raiseNotDefined()
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
     fringe = util.PriorityQueue()
-    startNode = (problem.getStartState(), [])
+    startNode = Node(problem.getStartState())
+    fringe.push(startNode, startNode.path_cost)
     closed = set()
     while not fringe.isEmpty():
-        
-
+        node = fringe.pop()
+        if problem.isGoalState(node.state):
+            return node.solution()
+        closed.add(node.state)
+        for child in node.expand(problem):
+            if (child.state not in closed):
+            #     fringe.push(child, child.path_cost)
+            # elif child in fringe.heap:
+                fringe.update(child, child.path_cost)
+    return None
     # util.raiseNotDefined()
 
 def nullHeuristic(state, problem=None):
@@ -143,7 +190,24 @@ def nullHeuristic(state, problem=None):
 def aStarSearch(problem, heuristic=nullHeuristic):
     """Search the node that has the lowest combined cost and heuristic first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    fringe = util.PriorityQueue()
+    closed = set()
+    startNode = Node(problem.getStartState())
+    fringe.push(startNode, startNode.path_cost + heuristic(startNode.state, problem))
+    while not fringe.isEmpty():
+        node = fringe.pop()
+        if problem.isGoalState(node.state):
+            return node.solution()
+        closed.add(node.state)
+        for child in node.expand(problem):
+            # if (child.state not in closed) and (child not in fringe.heap):
+            #     fringe.push(child, child.path_cost+ heuristic(child.state, problem))
+            # elif child in fringe.heap:
+            #     fringe.update(child, child.path_cost+ heuristic(child.state, problem))
+            if (child.state not in closed):
+
+                fringe.update(child, child.path_cost+heuristic(child.state, problem))
+    return None
 
 
 # Abbreviations
