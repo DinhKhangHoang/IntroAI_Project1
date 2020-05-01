@@ -174,8 +174,6 @@ def uniformCostSearch(problem):
         closed.add(node.state)
         for child in node.expand(problem):
             if (child.state not in closed):
-            #     fringe.push(child, child.path_cost)
-            # elif child in fringe.heap:
                 fringe.update(child, child.path_cost)
     return None
     # util.raiseNotDefined()
@@ -200,12 +198,7 @@ def aStarSearch(problem, heuristic=nullHeuristic):
             return node.solution()
         closed.add(node.state)
         for child in node.expand(problem):
-            # if (child.state not in closed) and (child not in fringe.heap):
-            #     fringe.push(child, child.path_cost+ heuristic(child.state, problem))
-            # elif child in fringe.heap:
-            #     fringe.update(child, child.path_cost+ heuristic(child.state, problem))
             if (child.state not in closed):
-
                 fringe.update(child, child.path_cost+heuristic(child.state, problem))
     return None
 
