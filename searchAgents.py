@@ -334,15 +334,15 @@ class CornersProblem(search.SearchProblem):
             nextx, nexty = int(x + dx), int(y + dy)
             hitsWall = self.walls[nextx][nexty]
             if not hitsWall:
-                newPosition = (nextx, nexty)
+                nextPosition = (nextx, nexty)
                 restCorners = state[1][:]
-                if newPosition in restCorners:
+                if nextPosition in restCorners:
                     temp = list(restCorners)
-                    temp.remove(newPosition)
+                    temp.remove(nextPosition)
                     restCorners = tuple(temp)
-                newState = (newPosition, restCorners)
-                actionCost = 1
-                successor =(newState, action, actionCost)
+                nextState = (nextPosition, restCorners)
+                cost = 1
+                successor =(nextState, action, cost)
                 successors.append(successor)
 
         self._expanded += 1 # DO NOT CHANGE
